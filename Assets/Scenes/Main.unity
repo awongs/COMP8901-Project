@@ -213,7 +213,6 @@ GameObject:
   m_Component:
   - component: {fileID: 872883755}
   - component: {fileID: 872883754}
-  - component: {fileID: 872883756}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -295,21 +294,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!114 &872883756
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 872883753}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9c65ecb0f5525c4489d3c021481b082, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  levelPath: 
-  floorTile: {fileID: 0}
-  wallTile: {fileID: 0}
 --- !u!1 &1290294894
 GameObject:
   m_ObjectHideFlags: 0
@@ -405,11 +389,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb124d35b5b5da14e88b8f440da0ac65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelPath: Assets/aiLevel.json
+  levelPath: Assets/Level/aiLevel.json
   floorTile: {fileID: 6801001690050098587, guid: 7ac503202df13824897b9447affee6ac,
     type: 3}
   wallTile: {fileID: 6227592344515181918, guid: 1f4a5300da8abad4eba7a517e625df5e,
     type: 3}
+  enemy: {fileID: 58114678105002588, guid: 5af460ef026ea4b4ea82431806a2d2bd, type: 3}
 --- !u!4 &1327161968
 Transform:
   m_ObjectHideFlags: 0

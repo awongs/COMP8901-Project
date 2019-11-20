@@ -3,7 +3,15 @@ using UnityEngine;
 
 public class TiledMapLoader : MonoBehaviour
 {
+    // Define Tiled data constants here.
     private const int FLOOR_TILE = 1;
+    private const int WALL_TILE = 58;
+
+    private const string TILE_LAYER = "Tile Layer";
+    private const string ENEMY_LAYER = "Enemy Layer";
+
+    private const int TILE_WIDTH = 32;
+    private const int TILE_HEIGHT = 32;
 
     // Path to the level .json file.
     public string levelPath;
@@ -14,6 +22,9 @@ public class TiledMapLoader : MonoBehaviour
     // Wall tile prefab.
     public GameObject wallTile;
 
+    // Enemy prefab.
+    public GameObject enemy;
+
     public void LoadLevel()
     {
         // Parse .json file into level information.
@@ -21,28 +32,63 @@ public class TiledMapLoader : MonoBehaviour
         TiledMap level = JsonUtility.FromJson<TiledMap>(levelJson);
        
         // Fill with the level tiles.
-        foreach (TileLayer tileLayer in level.layers)
+        foreach (Layer layer in level.layers)
         {
-            for (int x = 0; x < tileLayer.width; x++)
+            switch (layer.name)
             {
-                for (int y = 0; y < tileLayer.height; y++)
-                {
-                    int data = tileLayer.data[x * tileLayer.width + y];
-
-                    if (data == FLOOR_TILE)
+                case TILE_LAYER:
+                    for (int x = 0; x < layer.width; x++)
                     {
-                        GameObject tile = Instantiate(floorTile, transform);
-                        tile.transform.position = new Vector3(x, -0.5f * tile.transform.localScale.y, y);
+                        for (int y = 0; y < layer.height; y++)
+                        {
+                            SpawnTile(layer, x, y);
+                        }
                     }
-                    else
+                    break;
+                case ENEMY_LAYER:
+                    foreach (TileObject tileObj in layer.objects)
                     {
-                        GameObject tile = Instantiate(wallTile, transform);
-                        tile.transform.position = new Vector3(x, 0.5f * tile.transform.localScale.y - 1.0f, y);
+                        SpawnEnemy(tileObj);
                     }
-                    
-                }
+                    break;
+                default:
+                    break;
             }
         }
+    }
+
+    public void SpawnTile(Layer layer, int x, int y)
+    {
+        int data = layer.data[x * layer.width + y];
+
+        if (data == FLOOR_TILE)
+        {
+            GameObject tileObj = Instantiate(floorTile, transform);
+            tileObj.transform.position = new Vector3(x, -1.0f * tileObj.transform.localScale.y, y);
+
+            // Setup tile component.
+            Tile tile = tileObj.GetComponent<Tile>();
+            tile.tileType = Tile.TileType.FLOOR;
+            tile.x = x;
+            tile.y = y;
+        }
+        else if (data == WALL_TILE)
+        {
+            GameObject tileObj = Instantiate(wallTile, transform);
+            tileObj.transform.position = new Vector3(x, 0.5f * tileObj.transform.localScale.y - 1.5f, y);
+
+            // Setup tile component.
+            Tile tile = tileObj.GetComponent<Tile>();
+            tile.tileType = Tile.TileType.WALL;
+            tile.x = x;
+            tile.y = y;
+        }
+    }
+
+    public void SpawnEnemy(TileObject tileObj)
+    {
+        GameObject enemyObj = Instantiate(enemy, transform);
+        enemyObj.transform.position = new Vector3(tileObj.y / TILE_WIDTH - 1.0f, 0, tileObj.x / TILE_HEIGHT);
     }
 
     public void ClearLevel()

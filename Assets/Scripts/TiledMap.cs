@@ -1,41 +1,35 @@
 ﻿[System.Serializable]
 public class TiledMap
 {
-   public int compressionlevel;
-   public int height;
-   public bool infinite;
-   public TileLayer[] layers;
-   public int nextlayerid;
-   public int nextobjectid;
-   public string orientation;
-   public string renderorder;
-   public string tiledversion;
-   public int tileheight;
-   public TileSet[] tilesets;
-   public int tilewidth;
-   public string map;
-   public float version;
-   public int width;
+    public int height;
+    public int width;
+    public int tileheight;
+    public int tilewidth;
+    public Layer[] layers;
 }
 
 [System.Serializable]
-public class TileLayer
+public class Layer
 {
-    public int[] data;
-    public int height;
-    public int id;
     public string name;
-    public int opacity;
-    public string type;
-    public bool visible;
+    public int height;
     public int width;
+    public int[] data;
+    public TileObject[] objects;
+}
+
+[System.Serializable]
+public class TileObject
+{
+    public TileProperty[] properties;
     public int x;
     public int y;
 }
 
 [System.Serializable]
-public class TileSet
+public class TileProperty
 {
-    public int firstgid;
-    public string source;
+    public string name;
+    public string type;
+    public bool value;
 }
