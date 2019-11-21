@@ -2,6 +2,8 @@
 
 public class PriorityQueue<T>
 {
+    public delegate bool Tiebreaker(T first, T second);
+
     private class Node
     {
         public T item;
@@ -14,11 +16,22 @@ public class PriorityQueue<T>
         }
     }
 
+    // List of items in the queue.
     private readonly List<Node> m_items;
 
-    public PriorityQueue()
+    // Lambda function for breaking ties when priority is equal.
+    private readonly Tiebreaker m_tiebreaker;
+
+    public int Count {
+        get {
+            return m_items.Count;
+        }
+    }
+
+    public PriorityQueue(Tiebreaker tiebreaker)
     {
         m_items = new List<Node>();
+        m_tiebreaker = tiebreaker;
     }
 
     public void Enqueue(T item, int priority)
@@ -26,6 +39,18 @@ public class PriorityQueue<T>
         int index;
         for (index = 0; index < m_items.Count; index++)
         {
+            if (m_items[index].priority == priority)
+            {
+                if (m_tiebreaker(item, m_items[index].item))
+                {
+                    break;
+                }
+                else
+                {
+                    continue;
+                }
+            }
+            
             if (m_items[index].priority > priority)
             {
                 break;

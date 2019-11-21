@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
@@ -11,4 +13,6 @@ public class Tile : MonoBehaviour
     public int x;
     public int y;
     public TileType tileType;
+
+    public Dictionary<Tuple<int, int>, Tile> neighbours = new Dictionary<Tuple<int, int>, Tile>();
 }
