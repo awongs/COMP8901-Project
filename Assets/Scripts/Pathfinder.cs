@@ -53,7 +53,7 @@ public class Pathfinder : MonoBehaviour
         List<Tile> closedTiles = new List<Tile>();
 
         // Put starting node into the queue.
-        Tile startTile = m_level.tiles[new Tuple<int, int>((int)transform.position.x, (int)transform.position.z)];
+        Tile startTile = m_level.tiles[new Tuple<int, int>((int)Math.Abs(transform.position.x), (int)Math.Abs(transform.position.z))];
         Node startNode = new Node(startTile, startTile, targetTile);
         priorityQueue.Enqueue(startNode, (int)startNode.f);
         closedTiles.Add(startTile);

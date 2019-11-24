@@ -59,12 +59,12 @@ public class TiledMapLoader : MonoBehaviour
 
     public void SpawnTile(Layer layer, int x, int y)
     {
-        int data = layer.data[x * layer.width + y];
+        int data = layer.data[y * layer.width + x];
 
         if (data == FLOOR_TILE)
         {
             GameObject tileObj = Instantiate(floorTile, transform);
-            tileObj.transform.position = new Vector3(x, -1.0f * tileObj.transform.localScale.y, y);
+            tileObj.transform.position = new Vector3(x, -1.0f * tileObj.transform.localScale.y, -y);
 
             // Setup tile component.
             Tile tile = tileObj.GetComponent<Tile>();
@@ -75,7 +75,7 @@ public class TiledMapLoader : MonoBehaviour
         else if (data == WALL_TILE)
         {
             GameObject tileObj = Instantiate(wallTile, transform);
-            tileObj.transform.position = new Vector3(x, 0.5f * tileObj.transform.localScale.y - 1.5f, y);
+            tileObj.transform.position = new Vector3(x, 0.5f * tileObj.transform.localScale.y - 1.5f, -y);
 
             // Setup tile component.
             Tile tile = tileObj.GetComponent<Tile>();
@@ -88,7 +88,7 @@ public class TiledMapLoader : MonoBehaviour
     public void SpawnEnemy(TileObject tileObj)
     {
         GameObject enemyObj = Instantiate(enemy, transform);
-        enemyObj.transform.position = new Vector3(tileObj.y / TILE_WIDTH - 1.0f, 0, tileObj.x / TILE_HEIGHT);
+        enemyObj.transform.position = new Vector3(tileObj.x / TILE_WIDTH, 0, -tileObj.y / TILE_HEIGHT + 1.0f);
     }
 
     public void ClearLevel()
