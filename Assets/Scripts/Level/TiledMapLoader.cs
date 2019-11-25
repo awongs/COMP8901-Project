@@ -88,7 +88,7 @@ public class TiledMapLoader : MonoBehaviour
     public void SpawnEnemy(TileObject tileObj)
     {
         GameObject enemyObj = Instantiate(enemy, transform);
-        enemyObj.transform.position = new Vector3(tileObj.x / TILE_WIDTH, 0, -tileObj.y / TILE_HEIGHT + 1.0f);
+        enemyObj.transform.position = new Vector3(tileObj.x / TILE_WIDTH, enemyObj.transform.position.y, -tileObj.y / TILE_HEIGHT + 1.0f);
     }
 
     public void ClearLevel()
@@ -118,5 +118,4 @@ public class TiledMapEditor : Editor
             tiledMapLoader.ClearLevel();
         }
     }
-
 }
