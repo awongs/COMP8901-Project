@@ -37,14 +37,9 @@ public class Pathfinder : MonoBehaviour
         }
     }
 
-    // Reference to the game level.
-    private Level m_level;
-
-    public void Start()
-    {
-        m_level = GameObject.Find("Level").GetComponent<Level>();
-        CalculatePath(m_level.GetComponent<Level>().tiles[new Tuple<int, int>(1, 5)]);
-    }
+    // The current path to follow.
+    public List<Tile> currentPath;
+    public int currentPathIndex;
 
     public List<Tile> CalculatePath(Tile targetTile)
     {
@@ -53,7 +48,7 @@ public class Pathfinder : MonoBehaviour
         List<Tile> closedTiles = new List<Tile>();
 
         // Put starting node into the queue.
-        Tile startTile = m_level.tiles[new Tuple<int, int>((int)Math.Abs(transform.position.x), (int)Math.Abs(transform.position.z))];
+        Tile startTile = Level.TileAt((int)Math.Abs(transform.position.x), (int)Math.Abs(transform.position.z));
         Node startNode = new Node(startTile, startTile, targetTile);
         priorityQueue.Enqueue(startNode, (int)startNode.f);
         closedTiles.Add(startTile);
@@ -83,16 +78,16 @@ public class Pathfinder : MonoBehaviour
             {
                 // Construct path.
                 List<Tile> pathTiles = new List<Tile>();
-                while (currentNode != null)
+                while (currentNode != null && currentNode != startNode)
                 {
                     pathTiles.Add(currentNode.tile);
-                    currentNode.tile.GetComponent<Renderer>().material.color = Color.red;
+                    //currentNode.tile.GetComponent<Renderer>().material.color = Color.red;
                     currentNode = currentNode.parent;
                 }
 
                 // Reverse the list of tiles since we want a path from start to target.
                 pathTiles.Reverse();
-                targetTile.GetComponent<Renderer>().material.color = Color.blue;
+                //targetTile.GetComponent<Renderer>().material.color = Color.blue;
                 return pathTiles;
             }
         }

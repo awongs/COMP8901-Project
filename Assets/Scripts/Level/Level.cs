@@ -4,7 +4,13 @@ using UnityEngine;
 
 public class Level : MonoBehaviour
 {
-    public Dictionary<Tuple<int, int>, Tile> tiles;
+    public static Dictionary<Tuple<int, int>, Tile> tiles;
+
+    public static Tile TileAt(int x, int y)
+    {
+        return tiles[new Tuple<int, int>(x, y)];
+    }
+
     private void Awake()
     {
         tiles = new Dictionary<Tuple<int, int>, Tile>();
@@ -40,4 +46,5 @@ public class Level : MonoBehaviour
             }
         }
     }
+
 }
