@@ -2,7 +2,7 @@
 
 public class Enemy : Character
 {
-    private const float EPSILON = 0.05f;
+    private const float PI_DEG = 180.0f;
 
     enum State
     {
@@ -29,12 +29,27 @@ public class Enemy : Character
         switch(m_currentState)
         {
             case State.Idle:
-                pathfinder.currentPath = pathfinder.CalculatePath(Level.TileAt(1, 5));
-                m_currentState = State.Moving;
+                //pathfinder.currentPath = pathfinder.CalculatePath(Level.TileAt(1, 5));
+                //m_currentState = State.Moving;
+                Collider[] colliders = Physics.OverlapSphere(transform.position, 5.0f);
+                foreach (Collider c in colliders)
+                {
+                    Character character = c.GetComponent<Character>();
+                    if (character != null && character.team != team)
+                    {
+                        Vector3 direction = character.transform.position - transform.position;
+
+                        // Flatten and normalize the direction.
+                        direction.y = 0f;
+                        direction = Vector3.Normalize(direction);
+
+                        gun.Fire(direction);
+                    }
+                }
                 break;
             case State.Moving:
 
-                // Skip 
+                // Skip lag frames.
                 if (Time.deltaTime > 0.1f)
                 {
                     return;
@@ -47,14 +62,16 @@ public class Enemy : Character
                     Vector3 destination = pathfinder.currentPath[pathfinder.currentPathIndex].transform.position;
                     destination.y = transform.position.y;
                     Vector3 direction = destination - transform.position;
-                    direction.y = 0f;
+                    //direction.y = 0f;
                     direction = Vector3.Normalize(direction);
 
-                    rigidBody.MovePosition(transform.position + speed * direction * Time.deltaTime);
+                    // Calculate new position and direction.
+                    Vector3 newPosition = transform.position + speed * direction * Time.deltaTime;
+                    Vector3 newDirection = destination - newPosition;
+                    rigidBody.MovePosition(newPosition);
 
-                    // Check if we have arrived to the destination.
-                    // TODO: Implementation is very scuffed
-                    if (Vector3.Distance(transform.position, destination) < EPSILON)
+                    // We have passed the destination, set next index.
+                    if (Vector3.Angle(direction, newDirection) == PI_DEG)
                     {
                         pathfinder.currentPathIndex++;
                     }

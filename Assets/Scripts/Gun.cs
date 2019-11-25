@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Gun : MonoBehaviour
 {
@@ -18,5 +16,6 @@ public class Gun : MonoBehaviour
         bulletInstance.transform.position = transform.position;
         bulletInstance.transform.forward = direction;
         bulletInstance.GetComponent<Bullet>().Activate(team, damage);
+        
     }
 }

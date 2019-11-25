@@ -31,8 +31,6 @@ public class Player : Character
                 direction.y = 0f;
                 direction = Vector3.Normalize(direction);
 
-                Debug.Log(direction);
-
                 gun.Fire(direction);
             }
         }
