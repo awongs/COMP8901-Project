@@ -32,7 +32,7 @@ public class Bullet : MonoBehaviour
     private void Start()
     {
         // Limit the bullet's lifetime.
-        Invoke("Die", 1f);
+        Invoke("Die", 0.5f);
     }
 
     private void Die()
