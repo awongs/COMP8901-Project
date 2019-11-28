@@ -11,6 +11,35 @@ public class Level : MonoBehaviour
         return tiles[new Tuple<int, int>(x, y)];
     }
 
+    public static Tile RandomTileNear(Tile tile)
+    {
+        List<Tile> availableTiles = new List<Tile>();
+
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                
+
+                Tile nearbyTile = TileAt(tile.x + x, tile.y + y);
+                if (nearbyTile != null && nearbyTile.tileType == Tile.TileType.FLOOR)
+                {
+                    availableTiles.Add(nearbyTile);
+                }
+            }
+        }
+
+        if (availableTiles.Count == 0)
+        {
+            Debug.LogWarning("Couldn't find any neighbouring tiles for some reason.");
+            return null;
+        }
+
+        // Return a random available tile.
+        int randomIndex = UnityEngine.Random.Range(0, availableTiles.Count);
+        return availableTiles[randomIndex];
+    }
+
     private void Awake()
     {
         tiles = new Dictionary<Tuple<int, int>, Tile>();

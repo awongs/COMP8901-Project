@@ -43,6 +43,9 @@ public class Pathfinder : MonoBehaviour
 
     public List<Tile> CalculatePath(Tile targetTile)
     {
+        // Reset current path index.
+        currentPathIndex = 0;
+
         // Initialize list and queue.
         PriorityQueue<Node> priorityQueue = new PriorityQueue<Node>((first, second) => first.h < second.h);
         List<Tile> closedTiles = new List<Tile>();

@@ -16,8 +16,16 @@ public class Gun : MonoBehaviour
         }
     }
 
+    // Array of nearby colliders for the physics overlap sphere.
+    private Collider[] m_nearbyColliders;
+
     // Damage value for the gun.
     public int damage;
+
+    private void Start()
+    {
+        m_nearbyColliders = new Collider[10];
+    }
 
     public void Fire(Vector3 direction)
     {
@@ -32,6 +40,22 @@ public class Gun : MonoBehaviour
 
             // Set cooldown.
             m_currentCooldown = cooldown;
+
+            // Only the player's gun shot makes noise.
+            if (team == Character.Team.Player)
+            {
+                Physics.OverlapSphereNonAlloc(transform.position, 5.0f, m_nearbyColliders, ~LayerMask.GetMask("Level"));
+                foreach (Collider c in m_nearbyColliders)
+                {
+                    if (c == null) { continue; }
+
+                    Enemy enemy = c.GetComponent<Enemy>();
+                    if (enemy != null)
+                    {
+                        enemy.Alert(Level.TileAt((int)transform.position.x, -(int)transform.position.z));
+                    }
+                }
+            }
         }
     }
 
