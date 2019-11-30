@@ -35,45 +35,75 @@ public class Pathfinder : MonoBehaviour
             h = Mathf.Abs(endTile.x - tile.x) + Mathf.Abs(endTile.y - tile.y);
             f = g + h;
         }
-    }
 
-    // The current path to follow.
-    public List<Tile> currentPath;
-    public int currentPathIndex;
+        public void SetNewParent(Node newParent)
+        {
+            parent = newParent;
+            g = newParent.g + 1;
+
+            f = g + h;
+        }
+    }
 
     public List<Tile> CalculatePath(Tile targetTile)
     {
-        // Reset current path index.
-        currentPathIndex = 0;
+        if (targetTile.tileType == Tile.TileType.WALL)
+        {
+            Debug.LogWarning("Tried to find a path that ends at a wall.");
+            return null;
+        }
 
         // Initialize list and queue.
-        PriorityQueue<Node> priorityQueue = new PriorityQueue<Node>((first, second) => first.h < second.h);
-        List<Tile> closedTiles = new List<Tile>();
+        PriorityQueue<Node> nodeQueue = new PriorityQueue<Node>((first, second) => first.h < second.h);
+        List<Node> openNodes = new List<Node>();
+        List<Node> closedNodes = new List<Node>();
 
         // Put starting node into the queue.
-        Tile startTile = Level.TileAt((int)Math.Abs(transform.position.x), (int)Math.Abs(transform.position.z));
+        Tile startTile = Level.TileAt(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(Math.Abs(transform.position.z)));
         Node startNode = new Node(startTile, startTile, targetTile);
-        priorityQueue.Enqueue(startNode, (int)startNode.f);
-        closedTiles.Add(startTile);
+        nodeQueue.Enqueue(startNode, (int)startNode.f);
+        closedNodes.Add(startNode);
 
         // Keep searching until the queue is empty.
-        while (priorityQueue.Count > 0)
+        while (nodeQueue.Count > 0)
         {
-            Node currentNode = priorityQueue.Dequeue();
+            Node currentNode = nodeQueue.Dequeue();
 
             // Enqueue each applicable neighbour tile.
             foreach (Tile neighbour in currentNode.tile.neighbours.Values)
             {
-                // Don't consider walls or tiles that have already been visited.
-                if (neighbour.tileType == Tile.TileType.WALL || closedTiles.Contains(neighbour))
+                // Don't consider walls.
+                if (neighbour.tileType == Tile.TileType.WALL)
                 {
                     continue;
                 }
 
-                // Put neighbour node into the queue.
-                Node neighbourNode = new Node(neighbour, currentNode, startTile, targetTile);
-                priorityQueue.Enqueue(neighbourNode, (int)neighbourNode.f);
-                closedTiles.Add(neighbour);
+                // Don't consider tiles that have already been visited.
+                if (closedNodes.Find(n => n.tile == neighbour) != null)
+                {
+                    continue;
+                }
+
+                Node openNode = openNodes.Find(n => n.tile == neighbour);
+                if (openNode != null)
+                {
+                    // Replace parent if the current node is closer.
+                    if (currentNode.g + 1 < openNode.g)
+                    {
+                        openNode.SetNewParent(currentNode);
+
+                        // Requeue the node.
+                        nodeQueue.Remove(openNode);
+                        nodeQueue.Enqueue(openNode, (int)openNode.f);
+                    }
+                }
+                else
+                {
+                    // Put neighbour node into the queue.
+                    Node neighbourNode = new Node(neighbour, currentNode, startTile, targetTile);
+                    nodeQueue.Enqueue(neighbourNode, (int)neighbourNode.f);
+                    openNodes.Add(neighbourNode);
+                }
             }
             
             // Check if the solution has been found.
@@ -93,6 +123,9 @@ public class Pathfinder : MonoBehaviour
                 //targetTile.GetComponent<Renderer>().material.color = Color.blue;
                 return pathTiles;
             }
+
+            openNodes.Remove(currentNode);
+            closedNodes.Add(currentNode);
         }
 
         Debug.Log("Couldn't find a path for some reason.");

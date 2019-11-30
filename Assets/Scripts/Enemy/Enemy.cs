@@ -8,6 +8,9 @@ public class Enemy : Character
     // Reference to th rigid body component.
     public Rigidbody rigidBody;
 
+    // How far this enemy can see.
+    public float sightRange;
+
     // Current state of the enemy agent.
     private FiniteState m_currentState;
     public FiniteState CurrentState
@@ -32,59 +35,48 @@ public class Enemy : Character
     // Which way should the enemy agent be looking towards?
     private Vector3 m_targetDirection;
 
-    // Array of visible colliders for this enemy agent.
-    private Collider[] m_nearbyColliders;
-
     private void Start()
     {
         m_currentState = new IdleState(this);
-        m_nearbyColliders = new Collider[10];
+        
     }
 
     private void Update()
     {
         CurrentState.Run();
-
-        // Get all nearby colliders, ignoring level layer.
-        Physics.OverlapSphereNonAlloc(transform.position, 5.0f, m_nearbyColliders, ~LayerMask.GetMask("Level"));
-        foreach (Collider c in m_nearbyColliders)
-        {
-            if (c == null) { continue; }
-
-            Character character = c.GetComponent<Character>();
-            if (character != null && character.team != team)
-            {
-                Vector3 direction = character.transform.position - transform.position;
-
-                // Flatten and normalize the direction.
-                direction.y = 0f;
-                direction = Vector3.Normalize(direction);
-
-                // Check if we can actually see the target.
-                bool isTargetVisible = false;
-                Ray ray = new Ray(transform.position, direction);
-                if (Physics.Raycast(ray, out RaycastHit hit))
-                {
-                    if (hit.transform == character.transform)
-                    {
-                        isTargetVisible = true;
-                    }
-                }
-
-                if (isTargetVisible)
-                {
-                    gun.Fire(direction);
-                }
-            }
-        }
     }
 
     public void Alert(Tile sourceTile)
     {
         if (CurrentState is IdleState)
         {
-            pathfinder.currentPath = pathfinder.CalculatePath(Level.RandomTileNear(sourceTile));
-            CurrentState = new MoveState(this);
+            CurrentState = new MoveState(this, pathfinder.CalculatePath(Level.RandomTileNear(sourceTile)));
+        }
+    }
+    
+    public override void Die()
+    {
+        Destroy(gameObject);
+
+        // Alert nearby enemies of death.
+        Collider[] nearbyColliders = Physics.OverlapSphere(transform.position, sightRange, ~LayerMask.GetMask("Level"));
+        foreach (Collider c in nearbyColliders)
+        {
+            Enemy enemy = c.GetComponent<Enemy>();
+            if (enemy != null)
+            {
+                Ray ray = new Ray(enemy.transform.position, transform.position - enemy.transform.position);
+                if (Physics.Raycast(ray, out RaycastHit hit))
+                {
+                    // Make sure the other enemy is within sight.
+                    if (hit.transform == transform && hit.distance <= enemy.sightRange)
+                    {
+                        int x = Mathf.RoundToInt(transform.position.x);
+                        int y = Mathf.RoundToInt(Mathf.Abs(transform.position.z));
+                        enemy.Alert(Level.TileAt(x, y));
+                    }
+                }
+            }
         }
     }
 }

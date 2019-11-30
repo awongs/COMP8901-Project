@@ -6,8 +6,17 @@ public class Level : MonoBehaviour
 {
     public static Dictionary<Tuple<int, int>, Tile> tiles;
 
+    // Level boundaries.
+    public static int MaxX;
+    public static int MaxY;
+
     public static Tile TileAt(int x, int y)
     {
+        if (x < 0 || x > MaxX || y < 0 || y > MaxY)
+        {
+            return null;
+        }
+
         return tiles[new Tuple<int, int>(x, y)];
     }
 
@@ -19,8 +28,6 @@ public class Level : MonoBehaviour
         {
             for (int y = -1; y <= 1; y++)
             {
-                
-
                 Tile nearbyTile = TileAt(tile.x + x, tile.y + y);
                 if (nearbyTile != null && nearbyTile.tileType == Tile.TileType.FLOOR)
                 {
@@ -36,7 +43,7 @@ public class Level : MonoBehaviour
         }
 
         // Return a random available tile.
-        int randomIndex = UnityEngine.Random.Range(0, availableTiles.Count);
+        int randomIndex = UnityEngine.Random.Range(0, availableTiles.Count - 1);
         return availableTiles[randomIndex];
     }
 
@@ -50,6 +57,10 @@ public class Level : MonoBehaviour
             if (tile != null)
             {
                 tiles.Add(new Tuple<int, int>(tile.x, tile.y), tile);
+
+                // Update level boundaries.
+                if (tile.x > MaxX) { MaxX = tile.x; }
+                if (tile.y > MaxY) { MaxY = tile.y; }
             }
         }
 

@@ -29,7 +29,12 @@ public class Character : MonoBehaviour
         // Check death condition.
         if (health <= 0)
         {
-            Destroy(gameObject);
+            Die();
         }
+    }
+
+    public virtual void Die()
+    {
+        Destroy(gameObject);
     }
 }

@@ -1,11 +1,19 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class MoveState : FiniteState
 {
     private const float PI_DEG = 180.0f;
 
-    public MoveState(Enemy enemy) : base(enemy)
+    // The current path being taken.
+    public List<Tile> currentPath;
+
+    // The current index in the list of nodes for the path.
+    public int currentPathIndex;
+
+    public MoveState(Enemy enemy, List<Tile> path) : base(enemy)
     {
+        currentPath = path;
     }
 
     public override void OnStateEnter()
@@ -20,13 +28,11 @@ public class MoveState : FiniteState
 
     public override void Run()
     {
-        Pathfinder pathfinder = m_enemy.pathfinder;
-
-        // Is this character done following the path?
-        if (pathfinder.currentPathIndex != pathfinder.currentPath.Count)
+        // Is this enemy character done following the path?
+        if (currentPathIndex != currentPath.Count)
         {
             // Calculate direction of movement.
-            Vector3 destination = pathfinder.currentPath[pathfinder.currentPathIndex].transform.position;
+            Vector3 destination = currentPath[currentPathIndex].transform.position;
             destination.y = m_enemy.transform.position.y;
             Vector3 direction = destination - m_enemy.transform.position;
             //direction.y = 0f;
@@ -40,7 +46,7 @@ public class MoveState : FiniteState
             // We have passed the destination, set next index.
             if (Vector3.Angle(direction, newDirection) == PI_DEG)
             {
-                pathfinder.currentPathIndex++;
+                currentPathIndex++;
             }
         }
         else

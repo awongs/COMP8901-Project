@@ -52,7 +52,9 @@ public class Gun : MonoBehaviour
                     Enemy enemy = c.GetComponent<Enemy>();
                     if (enemy != null)
                     {
-                        enemy.Alert(Level.TileAt((int)transform.position.x, -(int)transform.position.z));
+                        int x = Mathf.RoundToInt(transform.position.x);
+                        int y = Mathf.RoundToInt(Mathf.Abs(transform.position.z));
+                        enemy.Alert(Level.TileAt(x, y));
                     }
                 }
             }

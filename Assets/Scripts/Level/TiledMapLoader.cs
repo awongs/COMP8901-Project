@@ -44,6 +44,11 @@ public class TiledMapLoader : MonoBehaviour
                             SpawnTile(layer, x, y);
                         }
                     }
+
+                    // Set dimensions in level.
+                    Level.MaxX = layer.width;
+                    Level.MaxY = layer.height;
+
                     break;
                 case ENEMY_LAYER:
                     foreach (TileObject tileObj in layer.objects)
