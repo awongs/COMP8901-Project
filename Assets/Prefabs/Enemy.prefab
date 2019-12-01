@@ -145,6 +145,17 @@ MonoBehaviour:
   pathfinder: {fileID: 7505254601984996080}
   rigidBody: {fileID: -4425545807271424908}
   sightRange: 7.5
+  nearbyColliders:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &655658511604543198
 GameObject:
   m_ObjectHideFlags: 0
@@ -247,6 +258,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Pistol
+      objectReference: {fileID: 0}
+    - target: {fileID: 5050369253183932933, guid: 2eae956cd01c3b448aed26ab04b1997f,
+        type: 3}
+      propertyPath: cooldown
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5050369253183932932, guid: 2eae956cd01c3b448aed26ab04b1997f,
         type: 3}

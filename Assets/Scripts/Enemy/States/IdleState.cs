@@ -3,13 +3,7 @@ using UnityEngine;
 
 public class IdleState : FiniteState
 {
-    // Array of visible colliders for the enemy agent.
-    private Collider[] m_nearbyColliders;
-
-    public IdleState(Enemy enemy) : base(enemy)
-    {
-        m_nearbyColliders = new Collider[10];
-    }
+    public IdleState(Enemy enemy) : base(enemy) { }
 
     public override void OnStateEnter()
     {
@@ -23,10 +17,8 @@ public class IdleState : FiniteState
 
     public override void Run()
     {
-        // Get all nearby colliders, ignoring level layer.
-        Array.Clear(m_nearbyColliders, 0, m_nearbyColliders.Length);
-        Physics.OverlapSphereNonAlloc(m_enemy.transform.position, m_enemy.sightRange, m_nearbyColliders, ~LayerMask.GetMask("Level"));
-        foreach (Collider c in m_nearbyColliders)
+        // Check if the player is within range to shoot.
+        foreach (Collider c in m_enemy.nearbyColliders)
         {
             if (c == null) { continue; }
 

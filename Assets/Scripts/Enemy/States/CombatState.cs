@@ -7,9 +7,13 @@ public class CombatState : FiniteState
     // The targetted character.
     private Character m_target;
 
+    // Reference to the enemy agent's goal for killing the player.
+    private Goal m_killPlayerGoal;
+
     public CombatState(Enemy enemy, Character target) : base(enemy)
     {
         m_target = target;
+        m_killPlayerGoal = m_enemy.Goals.Find(item => item.name == Enemy.KILL_PLAYER);
     }
 
     public override void OnStateEnter()
@@ -19,7 +23,8 @@ public class CombatState : FiniteState
 
     public override void OnStateExit()
     {
-        // Do nothing.
+        // Reset goal value for killing the player to zero.
+        m_killPlayerGoal.value = 0f;
     }
 
     public override void Run()
@@ -30,7 +35,10 @@ public class CombatState : FiniteState
         direction.y = 0f;
         direction = Vector3.Normalize(direction);
 
-        m_enemy.gun.Fire(direction);
+        m_enemy.transform.forward = direction;
+
+        // Increase goal value for killing the player.
+        m_killPlayerGoal.value += 1 * Time.deltaTime;
 
         // Check if we can still see the target.
         Ray ray = new Ray(m_enemy.transform.position, direction);

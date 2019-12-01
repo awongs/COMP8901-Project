@@ -40,7 +40,8 @@ public class Gun : MonoBehaviour
 
             // Set cooldown.
             m_currentCooldown = cooldown;
-
+            
+            /*
             // Only the player's gun shot makes noise.
             if (team == Character.Team.Player)
             {
@@ -58,6 +59,7 @@ public class Gun : MonoBehaviour
                     }
                 }
             }
+            */
         }
     }
 
