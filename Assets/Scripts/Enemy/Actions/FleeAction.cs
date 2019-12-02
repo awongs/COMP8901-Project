@@ -4,7 +4,7 @@ using UnityEngine;
 public class FleeAction : Action
 {
     // The amount of distance for fleeing.
-    private const float FLEE_RADIUS = 5f;
+    private const float FLEE_RADIUS = 4f;
 
     // The direction to flee towards.
     private Vector3 m_fleeDirection;
@@ -62,13 +62,14 @@ public class FleeAction : Action
             List<Tile> fleePath = m_enemy.pathfinder.CalculatePath(Level.TileAt(fleeX, fleeY));
 
             // Path count of zero indicates that the enemy agent is already cornered.
+            // Large path count indicates that the path is looping around a wall, and is unlikely to be running away from the player.
             // If the angle between the first tile in the path and the current forward is less than 90 degrees,
             // then that means the path is going towards the player.
-            // Immediately end if either of these checks are true.
-            if (fleePath.Count == 0 || Vector3.Angle(fleePath[0].transform.position, m_enemy.transform.forward) < 90.0f)
+            // Immediately end if any of these checks are true.
+            if (fleePath.Count == 0 || fleePath.Count > FLEE_RADIUS * 2 || Vector3.Angle(fleePath[0].transform.position, m_enemy.transform.forward) < 90.0f)
             {
                 // Reduce the goal value for this action.
-                m_stayAliveGoal.value = Mathf.Max(m_stayAliveGoal.value - 1f, 0f);
+                m_stayAliveGoal.value = Mathf.Max(m_stayAliveGoal.value - 5f, 0f);
                 isDone = true;
 
                 return;
@@ -84,7 +85,7 @@ public class FleeAction : Action
             if (m_moveState.completedPath)
             {
                 // Reduce the goal value after completing this action
-                m_stayAliveGoal.value = Mathf.Max(m_stayAliveGoal.value - 1f, 0f);
+                m_stayAliveGoal.value = Mathf.Max(m_stayAliveGoal.value - 5f, 0f);
                 isDone = true;
             }
         }

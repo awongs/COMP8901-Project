@@ -50,10 +50,14 @@ public class RetreatAction : Action
             if (collider == null) { continue; }
 
             Enemy enemy = collider.GetComponent<Enemy>();
-
-            if (enemy != null && enemy.aggressiveness != Enemy.Aggressiveness.Low && enemy.CurrentState is IdleState)
+            if (enemy != null && enemy != m_enemy && enemy.aggressiveness != Enemy.Aggressiveness.Low && enemy.CurrentState is IdleState)
             {
-                return true;
+                // Check if the ally is actually visible.
+                Ray ray = new Ray(m_enemy.transform.position, enemy.transform.position - m_enemy.transform.position);
+                if (Physics.Raycast(ray, out RaycastHit hit))
+                {
+                    return true;
+                }
             }
         }
 
@@ -62,24 +66,31 @@ public class RetreatAction : Action
 
     public override void Perform()
     {
-        // Calculate a path to the ally.
         if (m_moveState == null)
         {
-            Debug.Log("RETREAT");
+            // Find an ally that's within range.
             foreach (Collider collider in m_enemy.nearbyColliders)
             {
                 if (collider == null) { continue; }
 
                 Enemy enemy = collider.GetComponent<Enemy>();
-
-                if (enemy != null && enemy.aggressiveness != Enemy.Aggressiveness.Low && enemy.CurrentState is IdleState)
+                if (enemy != null && enemy != m_enemy && enemy.aggressiveness != Enemy.Aggressiveness.Low && enemy.CurrentState is IdleState)
                 {
-                    m_ally = enemy;
-                    List<Tile> retreatPath = m_enemy.pathfinder.CalculatePath(Level.RandomTileNear(enemy.GetTile()));
+                    // Check if the ally is actually visible.
+                    Ray ray = new Ray(m_enemy.transform.position, enemy.transform.position - m_enemy.transform.position);
+                    if (Physics.Raycast(ray, out RaycastHit hit))
+                    {
+                        if (hit.transform == enemy.transform)
+                        {
+                            // Calculate a path to the ally.
+                            m_ally = enemy;
+                            List<Tile> retreatPath = m_enemy.pathfinder.CalculatePath(Level.RandomTileNear(enemy.GetTile()));
 
-                    // Move towards the ally.
-                    m_moveState = new MoveState(m_enemy, retreatPath);
-                    m_enemy.CurrentState = m_moveState;
+                            // Move towards the ally.
+                            m_moveState = new MoveState(m_enemy, retreatPath);
+                            m_enemy.CurrentState = m_moveState;
+                        }
+                    }
                 }
             }
         }
@@ -87,7 +98,11 @@ public class RetreatAction : Action
         {
             if (m_moveState.completedPath)
             {
-                m_ally.Alert(m_initialTile);
+                // Make sure the ally hasn't died before trying to alert it.
+                if (m_ally != null)
+                {
+                    m_ally.Alert(m_initialTile);
+                }
 
                 // Reduce the goal value after completing this action.
                 m_stayAliveGoal.value = Mathf.Max(m_stayAliveGoal.value - 1f, 0f);

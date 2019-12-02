@@ -46,15 +46,15 @@ public class CombatState : FiniteState
         switch (m_enemy.aggressiveness)
         {
             case Enemy.Aggressiveness.Low:
-                m_attackPlayerGoal.value += 1 * Time.deltaTime;
-                m_stayAliveGoal.value += 2 * Time.deltaTime;
+                m_attackPlayerGoal.value += 3 * Time.deltaTime;
+                m_stayAliveGoal.value += 5 * Time.deltaTime;
                 break;
             case Enemy.Aggressiveness.Normal:
-                m_attackPlayerGoal.value += 3 * Time.deltaTime;
-                m_stayAliveGoal.value += 1 * Time.deltaTime;
+                m_attackPlayerGoal.value += 10 * Time.deltaTime;
+                m_stayAliveGoal.value += 3 * Time.deltaTime;
                 break;
             case Enemy.Aggressiveness.High:
-                m_attackPlayerGoal.value += 5 * Time.deltaTime;
+                m_attackPlayerGoal.value += 10 * Time.deltaTime;
                 break;
         }
 
