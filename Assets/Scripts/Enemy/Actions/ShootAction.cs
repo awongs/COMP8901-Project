@@ -2,11 +2,27 @@
 
 public class ShootAction : Action
 {
+    // The amount of time to wait before actually firing the gun.
+    private const float SHOOT_DELAY = 0.2f;
+
     // The direction to shoot.
     public Vector3 direction;
 
-    public ShootAction(Enemy enemy) : base(enemy)
+    // The amount of time that has elapsed since this action began.
+    private float m_elapsedTime;
+
+    // Reference to the enemy agent's goal for attacking the player.
+    private Goal m_attackPlayerGoal;
+
+    public ShootAction(Enemy enemy, Vector3 direction) : base(enemy)
     {
+        this.direction = direction;
+        m_attackPlayerGoal = m_enemy.Goals.Find(item => item.name == Enemy.ATTACK_PLAYER);
+    }
+
+    public override bool CheckPrecondition()
+    {
+        return true;
     }
 
     public override float CalculateDiscontentment()
@@ -16,9 +32,9 @@ public class ShootAction : Action
         foreach (Goal goal in m_enemy.Goals)
         {
             // This action reduces the discontentment value of the attack player goal.
-            if (goal.name == Enemy.KILL_PLAYER)
+            if (goal.name == Enemy.ATTACK_PLAYER)
             {
-                discontentment += Mathf.Pow(Mathf.Max(goal.value - 5f, 0), 2);
+                discontentment += Mathf.Pow(Mathf.Max(goal.value - 1f, 0), 2);
             }
             else
             {
@@ -31,7 +47,15 @@ public class ShootAction : Action
 
     public override void Perform()
     {
-        m_enemy.gun.Fire(m_enemy.transform.forward);
-        isDone = true;
+        m_elapsedTime += Time.deltaTime;
+
+        if (m_elapsedTime >= SHOOT_DELAY)
+        {
+            m_enemy.gun.Fire(direction);
+            isDone = true;
+
+            // Reduce the goal value after performing this action.
+            m_attackPlayerGoal.value = Mathf.Max(m_attackPlayerGoal.value - 5f, 0f);
+        }
     }
 }

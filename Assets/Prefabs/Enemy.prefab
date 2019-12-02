@@ -139,7 +139,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   team: 1
-  speed: 10
+  speed: 15
   health: 5
   gun: {fileID: 5873124929384534908}
   pathfinder: {fileID: 7505254601984996080}
@@ -156,6 +156,8 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  sightedPlayer: {fileID: 0}
+  aggressiveness: 0
 --- !u!1 &655658511604543198
 GameObject:
   m_ObjectHideFlags: 0

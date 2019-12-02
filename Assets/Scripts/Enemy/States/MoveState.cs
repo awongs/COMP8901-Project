@@ -11,6 +11,9 @@ public class MoveState : FiniteState
     // The current index in the list of nodes for the path.
     public int currentPathIndex;
 
+    // Did the enemy complete the path?
+    public bool completedPath;
+
     public MoveState(Enemy enemy, List<Tile> path) : base(enemy)
     {
         currentPath = path;
@@ -28,37 +31,10 @@ public class MoveState : FiniteState
 
     public override void Run()
     {
-        // Check if the player is within range to shoot.
-        foreach (Collider c in m_enemy.nearbyColliders)
+        // Switch to combat state if the player is sighted while moving, and we are not fleeing.
+        if (m_enemy.sightedPlayer != null && !(m_enemy.CurrentAction is FleeAction || m_enemy.CurrentAction is RetreatAction))
         {
-            if (c == null) { continue; }
-
-            Character character = c.GetComponent<Character>();
-            if (character != null && character.team != m_enemy.team)
-            {
-                Vector3 direction = character.transform.position - m_enemy.transform.position;
-
-                // Flatten and normalize the direction.
-                direction.y = 0f;
-                direction = Vector3.Normalize(direction);
-
-                // Check if we can actually see the target.
-                bool isTargetVisible = false;
-                Ray ray = new Ray(m_enemy.transform.position, direction);
-                if (Physics.Raycast(ray, out RaycastHit hit))
-                {
-                    if (hit.transform == character.transform)
-                    {
-                        isTargetVisible = true;
-                    }
-                }
-
-                // If the target is visible, switch to combat state.
-                if (isTargetVisible)
-                {
-                    m_enemy.CurrentState = new CombatState(m_enemy, character);
-                }
-            }
+            m_enemy.CurrentState = new CombatState(m_enemy, m_enemy.sightedPlayer);
         }
 
         // Is this enemy character done following the path?
@@ -68,7 +44,9 @@ public class MoveState : FiniteState
             Vector3 destination = currentPath[currentPathIndex].transform.position;
             destination.y = m_enemy.transform.position.y;
             Vector3 direction = destination - m_enemy.transform.position;
-            //direction.y = 0f;
+
+            // Flatten and normalize the direction.
+            direction.y = 0f;
             direction = Vector3.Normalize(direction);
 
             // Calculate new position and direction.
@@ -84,6 +62,7 @@ public class MoveState : FiniteState
         }
         else
         {
+            completedPath = true;
             m_enemy.CurrentState = new IdleState(m_enemy);
         }
     }

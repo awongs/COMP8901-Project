@@ -49,8 +49,16 @@ public class Pathfinder : MonoBehaviour
     {
         if (targetTile.tileType == Tile.TileType.WALL)
         {
-            Debug.LogWarning("Tried to find a path that ends at a wall.");
-            return null;
+            //Debug.LogWarning("Tried to find a path that ends at a wall.");
+
+            foreach (Tile tile in targetTile.neighbours.Values)
+            {
+                if (tile.tileType != Tile.TileType.WALL)
+                {
+                    targetTile = tile;
+                }
+            }
+            //return null;
         }
 
         // Initialize list and queue.

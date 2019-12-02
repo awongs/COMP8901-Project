@@ -4,9 +4,16 @@ using UnityEngine;
 
 public class Enemy : Character
 {
+    public enum Aggressiveness
+    {
+        Low,
+        Normal,
+        High
+    }
+
     // Goal definitions here.
     public const string STAY_ALIVE = "Stay Alive";
-    public const string KILL_PLAYER = "Kill Player";
+    public const string ATTACK_PLAYER = "Attack Player";
 
     // Reference to the pathfinder component.
     public Pathfinder pathfinder;
@@ -19,6 +26,13 @@ public class Enemy : Character
 
     // Array of visible colliders for the enemy agent.
     public Collider[] nearbyColliders = new Collider[10];
+
+    // Reference to the player if they are in sight.
+    // If this is null, it means that this enemy can't see the player.
+    public Player sightedPlayer;
+
+    // The aggressiveness level of this enemy agent.
+    public Aggressiveness aggressiveness;
 
     // Current state of the enemy agent.
     private FiniteState m_currentState;
@@ -57,6 +71,12 @@ public class Enemy : Character
 
     // The current action to perform.
     private Action m_currentAction;
+    public Action CurrentAction {
+        get 
+        {
+            return m_currentAction;
+        }
+    }
 
     private void Start()
     {
@@ -64,12 +84,32 @@ public class Enemy : Character
         
         // Initialize goals list.
         m_goals = new List<Goal>();
-        m_goals.Add(new Goal(STAY_ALIVE, 10));
-        m_goals.Add(new Goal(KILL_PLAYER, 0));
+        m_goals.Add(new Goal(STAY_ALIVE, 0));
+        m_goals.Add(new Goal(ATTACK_PLAYER, 0));
+
+        // Randomized aggressiveness.
+        // Colour changes depending on aggressiveness value.
+        aggressiveness = (Enemy.Aggressiveness)UnityEngine.Random.Range(0, 3);
+
+        switch (aggressiveness)
+        {
+            case Enemy.Aggressiveness.Low:
+                GetComponent<Renderer>().material.color = Color.blue;
+                break;
+            case Enemy.Aggressiveness.Normal:
+                GetComponent<Renderer>().material.color = Color.magenta;
+                break;
+            case Enemy.Aggressiveness.High:
+                GetComponent<Renderer>().material.color = Color.red;
+                break;
+        }
+
 
         // Initialize actions list.
         m_actions = new List<Action>();
-        m_actions.Add(new ShootAction(this));
+        m_actions.Add(new ShootAction(this, Vector3.zero));
+        m_actions.Add(new FleeAction(this, Vector3.zero));
+        m_actions.Add(new RetreatAction(this));
     }
 
     private void Update()
@@ -77,6 +117,35 @@ public class Enemy : Character
         // Get all nearby colliders, ignoring level layer.
         Array.Clear(nearbyColliders, 0, nearbyColliders.Length);
         Physics.OverlapSphereNonAlloc(transform.position, sightRange, nearbyColliders, ~LayerMask.GetMask("Level"));
+
+        // Reset player reference.
+        sightedPlayer = null;
+
+        // Check if the player is within sight range.
+        foreach (Collider collider in nearbyColliders)
+        {
+            if (collider == null) { continue; }
+
+            Player player = collider.GetComponent<Player>();
+            if (player != null)
+            {
+                Vector3 direction = player.transform.position - transform.position;
+
+                // Flatten and normalize the direction.
+                direction.y = 0f;
+                direction = Vector3.Normalize(direction);
+
+                // Check if we can actually see the target.
+                Ray ray = new Ray(transform.position, direction);
+                if (Physics.Raycast(ray, out RaycastHit hit))
+                {
+                    if (hit.transform == player.transform)
+                    {
+                        sightedPlayer = player;
+                    }
+                }
+            }
+        }
 
         // Run the current state.
         CurrentState.Run();
@@ -94,7 +163,8 @@ public class Enemy : Character
 
     public void Alert(Tile sourceTile)
     {
-        if (CurrentState is IdleState)
+        // Only chase the player if currently idle and not low aggressiveness.
+        if (CurrentState is IdleState && aggressiveness != Enemy.Aggressiveness.Low)
         {
             CurrentState = new MoveState(this, pathfinder.CalculatePath(Level.RandomTileNear(sourceTile)));
         }
@@ -102,14 +172,14 @@ public class Enemy : Character
 
     public void ChooseAction()
     {
-        // Start with an idle action.
+        // Default action is to do nothing (idle).
         Action bestAction = new IdleAction(this);
         bestAction.CalculateDiscontentment();
 
         // Find the best action by comparing discontentment values.
         foreach (Action action in m_actions)
         {
-            if (action.CalculateDiscontentment() < bestAction.discontentment)
+            if (action.CheckPrecondition() && action.CalculateDiscontentment() < bestAction.discontentment)
             {
                 bestAction = action;
             }
@@ -118,7 +188,15 @@ public class Enemy : Character
         // Choose the best action.
         if (bestAction is ShootAction)
         {
-            m_currentAction = new ShootAction(this);
+            m_currentAction = new ShootAction(this, transform.forward);
+        }
+        else if (bestAction is FleeAction)
+        {
+            m_currentAction = new FleeAction(this, -transform.forward);
+        }
+        else if (bestAction is RetreatAction)
+        {
+            m_currentAction = new RetreatAction(this);
         }
     }
 

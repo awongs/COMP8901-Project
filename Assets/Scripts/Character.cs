@@ -33,6 +33,18 @@ public class Character : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Retrieves the tile that the character is currently on.
+    /// </summary>
+    /// <returns>The tile that the character is currently on.</returns>
+    public Tile GetTile()
+    {
+        int x = Mathf.RoundToInt(transform.position.x);
+        int y = Mathf.RoundToInt(Mathf.Abs(transform.position.z));
+
+        return Level.TileAt(x, y);
+    }
+
     public virtual void Die()
     {
         Destroy(gameObject);

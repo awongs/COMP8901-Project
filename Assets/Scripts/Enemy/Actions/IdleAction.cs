@@ -16,6 +16,11 @@ public class IdleAction : Action
         return discontentment;
     }
 
+    public override bool CheckPrecondition()
+    {
+        return true;
+    }
+
     public override void Perform()
     {
         // Do nothing.

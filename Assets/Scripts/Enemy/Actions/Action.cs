@@ -14,6 +14,8 @@
         m_enemy = enemy;
     }
 
+    public abstract bool CheckPrecondition();
+
     public abstract float CalculateDiscontentment();
     public abstract void Perform();
 }
