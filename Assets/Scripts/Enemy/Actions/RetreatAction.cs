@@ -93,6 +93,13 @@ public class RetreatAction : Action
                     }
                 }
             }
+
+            // Couldn't find a path, so abort.
+            if (m_moveState == null)
+            {
+                m_stayAliveGoal.value = Mathf.Max(m_stayAliveGoal.value - 1f, 0f);
+                isDone = true;
+            }
         }
         else
         {
@@ -102,6 +109,7 @@ public class RetreatAction : Action
                 if (m_ally != null)
                 {
                     m_ally.Alert(m_initialTile);
+                    m_enemy.CurrentState = new MoveState(m_enemy, m_enemy.pathfinder.CalculatePath(m_initialTile));
                 }
 
                 // Reduce the goal value after completing this action.

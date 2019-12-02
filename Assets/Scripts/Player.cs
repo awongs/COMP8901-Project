@@ -2,6 +2,12 @@
 
 public class Player : Character
 {
+    // The initial position of the player.
+    public Vector3 spawnPosition;
+
+    // Reference to the death screen interface.
+    public GameObject deathScreen;
+
     // Reference to the character controller.
     private CharacterController m_characterController;
 
@@ -13,6 +19,8 @@ public class Player : Character
         {
             Debug.LogWarning("Couldn't find CharacterController on Player.");
         }
+
+        transform.position = spawnPosition;
     }
 
     private void Update()
@@ -46,5 +54,11 @@ public class Player : Character
         Vector3 direction = new Vector3(h, 0, v);
 
         m_characterController.Move(speed * direction * Time.deltaTime);
+    }
+
+    public override void Die()
+    {
+        gameObject.SetActive(false);
+        deathScreen.SetActive(true);
     }
 }

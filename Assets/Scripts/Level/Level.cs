@@ -47,7 +47,7 @@ public class Level : MonoBehaviour
         return availableTiles[randomIndex];
     }
 
-    private void Awake()
+    public void BuildTiles()
     {
         tiles = new Dictionary<Tuple<int, int>, Tile>();
 
@@ -79,7 +79,8 @@ public class Level : MonoBehaviour
                     Tuple<int, int> tilePos = new Tuple<int, int>(tile.x + x, tile.y + y);
                     tiles.TryGetValue(tilePos, out Tile value);
 
-                    if (value != null) {
+                    if (value != null)
+                    {
                         tile.neighbours.Add(new Tuple<int, int>(x, y), value);
                     }
                 }
@@ -87,4 +88,8 @@ public class Level : MonoBehaviour
         }
     }
 
+    private void Awake()
+    {
+        BuildTiles();
+    }
 }

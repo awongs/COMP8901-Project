@@ -60,6 +60,8 @@ public class TiledMapLoader : MonoBehaviour
                     break;
             }
         }
+
+        GetComponent<Level>().BuildTiles();
     }
 
     public void SpawnTile(Layer layer, int x, int y)

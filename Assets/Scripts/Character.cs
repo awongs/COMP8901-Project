@@ -16,6 +16,9 @@ public class Character : MonoBehaviour
     // Speed of the character's movement.
     public float speed;
 
+    // Maximum health of the character.
+    public int maxHealth;
+
     // Current health of the character.
     public int health;
 
