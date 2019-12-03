@@ -2,17 +2,14 @@
 
 public class Bullet : MonoBehaviour
 {
-
-    // The character who fired this bullet's team.
-    private Character.Team m_team;
-
-    // Damage of this bullet.
-    private int m_damage;
-
-    public void Activate(Character.Team team, int damage)
+    /// <summary>
+    /// Actives the hit scanner for the bullet.
+    /// </summary>
+    /// <param name="firingCharacter">The character who fired the gun.</param>
+    /// <param name="damage">The amount of damage that the gun deals.</param>
+    /// <returns>True if the bullet dealt damage to a character, otherwise false.</returns>
+    public bool Activate(Character firingCharacter, int damage)
     {
-        m_team = team;
-        m_damage = damage;
         gameObject.SetActive(true);
 
         Ray ray = new Ray(transform.position, transform.forward);
@@ -22,11 +19,14 @@ public class Bullet : MonoBehaviour
             gameObject.GetComponent<LineRenderer>().SetPositions(positions);
 
             Character character = hit.transform.GetComponent<Character>();
-            if (character != null && character.team != team)
+            if (character != null && character.team != firingCharacter.team)
             {
                 character.TakeDamage(damage);
+                return true;
             }
         }
+
+        return false;
     }
 
     private void Start()

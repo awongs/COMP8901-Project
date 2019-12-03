@@ -14,10 +14,14 @@ public class ShootAction : Action
     // Reference to the enemy agent's goal for attacking the player.
     private Goal m_attackPlayerGoal;
 
+    // Reference to the enemy agent's dodge predictor component.
+    private DodgePredictor m_dodgePredictor;
+
     public ShootAction(Enemy enemy, Vector3 direction) : base(enemy)
     {
         this.direction = direction;
         m_attackPlayerGoal = m_enemy.Goals.Find(item => item.name == Enemy.ATTACK_PLAYER);
+        m_dodgePredictor = m_enemy.GetComponent<DodgePredictor>();
     }
 
     public override bool CheckPrecondition()
@@ -51,6 +55,22 @@ public class ShootAction : Action
 
         if (m_elapsedTime >= SHOOT_DELAY)
         {
+            // Predict dodge if the player is currently moving.
+            if (m_enemy.sightedPlayer != null && m_enemy.sightedPlayer.isMoving)
+            {
+                DodgePredictor.Dodge prediction = m_dodgePredictor.PredictDodge();
+                if (prediction == DodgePredictor.Dodge.Left)
+                {
+                    // Rotate the firing direction slightly to the left to try and compensate for left dodge.
+                    direction = Quaternion.Euler(0, -DodgePredictor.DODGE_ANGLE, 0) * direction;
+                }
+                else if (prediction == DodgePredictor.Dodge.Right)
+                {
+                    // Rotate the firing direction slightly to the right to try and compensate for right dodge.
+                    direction = Quaternion.Euler(0, DodgePredictor.DODGE_ANGLE, 0) * direction;
+                }
+            }
+
             m_enemy.gun.Fire(direction);
             isDone = true;
 

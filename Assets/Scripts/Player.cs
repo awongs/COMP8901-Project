@@ -8,6 +8,9 @@ public class Player : Character
     // Reference to the death screen interface.
     public GameObject deathScreen;
 
+    // Is this game object currently moving?
+    public bool isMoving;
+
     // Reference to the character controller.
     private CharacterController m_characterController;
 
@@ -52,6 +55,8 @@ public class Player : Character
 
         // Get direction of movement.
         Vector3 direction = new Vector3(h, 0, v);
+
+        isMoving = direction != Vector3.zero;
 
         m_characterController.Move(speed * direction * Time.deltaTime);
     }

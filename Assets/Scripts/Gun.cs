@@ -31,12 +31,17 @@ public class Gun : MonoBehaviour
     {
         if (IsReady)
         {
-            Character.Team team = transform.parent.GetComponent<Character>().team;
-
             GameObject bulletInstance = Instantiate(bulletObj);
             bulletInstance.transform.position = transform.position;
             bulletInstance.transform.forward = direction;
-            bulletInstance.GetComponent<Bullet>().Activate(team, damage);
+            bool hitSomething = bulletInstance.GetComponent<Bullet>().Activate(transform.parent.GetComponent<Character>(), damage);
+
+            // Record dodges if applicable.
+            DodgePredictor dodgePredictor = transform.parent.GetComponent<DodgePredictor>();
+            if (dodgePredictor != null && !hitSomething)
+            {
+                dodgePredictor.RecordDodge(direction);
+            }
 
             // Set cooldown.
             m_currentCooldown = cooldown;
