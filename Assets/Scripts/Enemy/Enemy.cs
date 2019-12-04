@@ -34,6 +34,9 @@ public class Enemy : Character
     // The aggressiveness level of this enemy agent.
     public Aggressiveness aggressiveness;
 
+    // The tile that this enemy agent started on.
+    public Tile spawnTile;
+
     // Current state of the enemy agent.
     private FiniteState m_currentState;
     public FiniteState CurrentState
@@ -78,15 +81,10 @@ public class Enemy : Character
         }
     }
 
-    private void Start()
-    {
-        m_currentState = new IdleState(this);
-        
-        // Initialize goals list.
-        m_goals = new List<Goal>();
-        m_goals.Add(new Goal(STAY_ALIVE, 0));
-        m_goals.Add(new Goal(ATTACK_PLAYER, 0));
+    
 
+    private void Awake()
+    {
         // Randomized aggressiveness.
         // Colour changes depending on aggressiveness value.
         aggressiveness = (Enemy.Aggressiveness)UnityEngine.Random.Range(0, 3);
@@ -103,13 +101,27 @@ public class Enemy : Character
                 GetComponent<Renderer>().material.color = Color.red;
                 break;
         }
+    }
 
+    private void Start()
+    {
+        m_currentState = new IdleState(this);
+        
+        // Initialize goals list.
+        m_goals = new List<Goal>();
+        m_goals.Add(new Goal(STAY_ALIVE, 0));
+        m_goals.Add(new Goal(ATTACK_PLAYER, 0));
 
         // Initialize actions list.
         m_actions = new List<Action>();
         m_actions.Add(new ShootAction(this, Vector3.zero));
         m_actions.Add(new FleeAction(this, Vector3.zero));
         m_actions.Add(new RetreatAction(this));
+
+        // Record spawning tile.
+        int x = Mathf.RoundToInt(transform.position.x);
+        int y = Mathf.RoundToInt(Mathf.Abs(transform.position.z));
+        spawnTile = Level.TileAt(x, y);
     }
 
     private void Update()
@@ -202,6 +214,7 @@ public class Enemy : Character
 
     public override void Die()
     {
+        GameObject.Find("Level").GetComponent<Respawner>().RecordDeath(spawnTile, aggressiveness, m_currentState is IdleState);
         Destroy(gameObject);
 
         // Alert nearby enemies of death.
