@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,6 +32,10 @@ public class DodgePredictor : MonoBehaviour
         recentHistory = new List<Dodge>();
     }
     
+    /// <summary>
+    /// Records a dodge done by the player.
+    /// </summary>
+    /// <param name="bulletDirection">The direction of the bullet that was dodged.</param>
     public void RecordDodge(Vector3 bulletDirection)
     {
         // Remove a stale record if we have reached the max history count
@@ -66,6 +69,10 @@ public class DodgePredictor : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Predicts a dodge.
+    /// </summary>
+    /// <returns>A dodge prediction using nGrams.</returns>
     public Dodge PredictDodge()
     {
         // Not enough data recorded, so don't return a prediction.

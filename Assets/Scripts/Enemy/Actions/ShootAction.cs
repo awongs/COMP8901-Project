@@ -17,6 +17,11 @@ public class ShootAction : Action
     // Reference to the enemy agent's dodge predictor component.
     private DodgePredictor m_dodgePredictor;
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="enemy">Reference to the enemy.</param>
+    /// <param name="direction">The direction to shoot.</param>
     public ShootAction(Enemy enemy, Vector3 direction) : base(enemy)
     {
         this.direction = direction;

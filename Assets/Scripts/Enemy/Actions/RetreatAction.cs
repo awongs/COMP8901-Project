@@ -15,6 +15,10 @@ public class RetreatAction : Action
     // The ally that has been chosen to alert.
     private Enemy m_ally;
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="enemy">Reference to the enemy.</param>
     public RetreatAction(Enemy enemy) : base(enemy)
     {
         m_stayAliveGoal = m_enemy.Goals.Find(item => item.name == Enemy.STAY_ALIVE);

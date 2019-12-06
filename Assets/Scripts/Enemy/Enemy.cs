@@ -81,8 +81,6 @@ public class Enemy : Character
         }
     }
 
-    
-
     private void Awake()
     {
         // Randomized aggressiveness.
@@ -126,6 +124,12 @@ public class Enemy : Character
 
     private void Update()
     {
+        // Don't update if the game is too laggy (< 10 FPS)
+        if (Time.deltaTime > 0.1f)
+        {
+            return;
+        }
+
         // Get all nearby colliders, ignoring level layer.
         Array.Clear(nearbyColliders, 0, nearbyColliders.Length);
         Physics.OverlapSphereNonAlloc(transform.position, sightRange, nearbyColliders, ~LayerMask.GetMask("Level"));

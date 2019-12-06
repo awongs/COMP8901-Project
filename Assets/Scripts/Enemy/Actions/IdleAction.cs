@@ -2,6 +2,10 @@
 
 public class IdleAction : Action
 {
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="enemy">Reference to the enemy.</param>
     public IdleAction(Enemy enemy) : base(enemy) { }
 
     public override float CalculateDiscontentment()

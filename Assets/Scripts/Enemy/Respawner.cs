@@ -30,35 +30,21 @@ public class Respawner : MonoBehaviour
     // List of all recorded enemy agent death information.
     private List<DeathData> m_deathLog = new List<DeathData>();
 
-    public void Start()
-    {
-        /* FOR TESTING
-
-        for (int i = 0; i < 25; i++)
-        {
-            for (int j = 0; j < 25; j++)
-            {
-                Tile tile = Level.TileAt(i, j);
-
-                for (int k = 0; k < 9; k++)
-                {
-                    RecordDeath(tile, Enemy.Aggressiveness.High, true);
-                }
-                RecordDeath(tile, Enemy.Aggressiveness.High, false);
-
-                ClassifySpawnLocation(tile, Enemy.Aggressiveness.High);
-            }
-        }
-
-        */
-    }
-
+    /// <summary>
+    /// Records an enemy agent death.
+    /// </summary>
+    /// <param name="spawnTile">The tile that the enemy agent spawend on.</param>
+    /// <param name="aggressiveness">The aggressiveness of the enemy agent.</param>
+    /// <param name="isIdle">Whether or not the enemy agent was idle when it died.</param>
     public void RecordDeath(Tile spawnTile, Enemy.Aggressiveness aggressiveness, bool isIdle)
     {
         m_deathLog.Add(new DeathData(spawnTile, aggressiveness, isIdle));
         StartCoroutine(RespawnEnemy());
     }
 
+    /// <summary>
+    /// Respawns the enemy after a short delay.
+    /// </summary>
     public IEnumerator RespawnEnemy()
     {
         // Wait a few seconds before respawning.
@@ -80,6 +66,12 @@ public class Respawner : MonoBehaviour
         enemy.spawnTile = randomTile;
     }
 
+    /// <summary>
+    /// Checks if a given spawn tile and aggression level will more likely result in an idle death.
+    /// </summary>
+    /// <param name="spawnTile">The tile to spawn at.</param>
+    /// <param name="aggressiveness">The aggressiveness of the enemy.</param>
+    /// <returns>True if classifed as a likely idle death, otherwise false.</returns>
     public bool ClassifySpawnLocation(Tile spawnTile, Enemy.Aggressiveness aggressiveness)
     {
         // Counters for deaths that were in the idle state.
@@ -190,14 +182,7 @@ public class Respawner : MonoBehaviour
         // Multiply the probabilities for naive bayes classification.
         float probabilityIdle = probabilityIdleDeath * probabilityAggroIdleDeath * probabilitySpawnTileDeath;
         float probabilityNonIdle = probabilityNonIdleDeath * probabilityNonAggroIdleDeath * probabilityNonSpawnTileDeath;
-
-        /* FOR TESTING
-        if (probabilityIdle != 0.0f || probabilityNonIdle != 0.0f)
-        {
-            Debug.Log($"Probability Idle: {probabilityIdle}  :  Probability Non Idle: {probabilityNonIdle}");
-        }
-        */
-
+        
         // True means it is less likely that this spawn location and aggressiveness will result in an idle state death.
         return probabilityIdle <= probabilityNonIdle;
     }

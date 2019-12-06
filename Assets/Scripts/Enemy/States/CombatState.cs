@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CombatState : FiniteState
 {
@@ -13,6 +11,11 @@ public class CombatState : FiniteState
     // Reference to the enemy agent's goal for staying alive.
     private Goal m_stayAliveGoal;
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="enemy">The enemy that owns this state.</param>
+    /// <param name="target">The target to shoot.</param>
     public CombatState(Enemy enemy, Character target) : base(enemy)
     {
         m_target = target;
@@ -27,9 +30,8 @@ public class CombatState : FiniteState
 
     public override void OnStateExit()
     {
-        // Reset goal values when exiting.
+        // Reset attack player goal when exiting.
         m_attackPlayerGoal.value = 0f;
-        //m_stayAliveGoal.value = 0f;
     }
 
     public override void Run()
@@ -46,12 +48,12 @@ public class CombatState : FiniteState
         switch (m_enemy.aggressiveness)
         {
             case Enemy.Aggressiveness.Low:
-                m_attackPlayerGoal.value += 3 * Time.deltaTime;
+                m_attackPlayerGoal.value += 1 * Time.deltaTime;
                 m_stayAliveGoal.value += 5 * Time.deltaTime;
                 break;
             case Enemy.Aggressiveness.Normal:
-                m_attackPlayerGoal.value += 10 * Time.deltaTime;
-                m_stayAliveGoal.value += 3 * Time.deltaTime;
+                m_attackPlayerGoal.value += 5 * Time.deltaTime;
+                m_stayAliveGoal.value += 5 * Time.deltaTime;
                 break;
             case Enemy.Aggressiveness.High:
                 m_attackPlayerGoal.value += 10 * Time.deltaTime;

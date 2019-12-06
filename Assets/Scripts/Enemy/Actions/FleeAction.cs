@@ -15,6 +15,11 @@ public class FleeAction : Action
     // Reference to the enemy agent's goal for staying alive.
     private Goal m_stayAliveGoal;
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="enemy">Reference to the enemy.</param>
+    /// <param name="fleeDirection">The direction to flee towards.</param>
     public FleeAction(Enemy enemy, Vector3 fleeDirection) : base(enemy)
     {
         m_fleeDirection = fleeDirection;

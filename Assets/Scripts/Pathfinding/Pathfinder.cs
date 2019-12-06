@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Pathfinder : MonoBehaviour
 {
-    public delegate float Heuristic(Tile current, Tile target);
-
+    /// <summary>
+    /// Represents an A* Node for pathfinding.
+    /// </summary>
     private class Node
     {
         public Tile tile;
@@ -18,24 +18,42 @@ public class Pathfinder : MonoBehaviour
 
         public Node parent;
 
+        /// <summary>
+        /// Constructor for creating a node without a parent.
+        /// </summary>
+        /// <param name="tile">The node's tile.</param>
+        /// <param name="startTile">The starting tile in the path.</param>
+        /// <param name="endTile">The destination tile in the path.</param>
         public Node(Tile tile, Tile startTile, Tile endTile)
         {
             this.tile = tile;
             g = Mathf.Abs(tile.x - startTile.x) + Mathf.Abs(tile.y - startTile.y);
-            h = Mathf.Abs(endTile.x - tile.x) + Mathf.Abs(endTile.y - tile.y);
+            h = Mathf.Abs(endTile.x - tile.x) + Mathf.Abs(endTile.y - tile.y); // Manhattan
             f = g + h;
         }
 
-        public Node(Tile tile, Node parent, Tile startTile, Tile endTile)
+        /// <summary>
+        /// Constructor for creating a node that has a parent.
+        /// Inherits the g value from the parent.
+        /// </summary>
+        /// <param name="tile">The node's tile.</param>
+        /// <param name="parent">The parent of the node.</param>
+        /// <param name="endTile">The destination tile in the path.</param>
+        public Node(Tile tile, Node parent, Tile endTile)
         {
             this.tile = tile;
             this.parent = parent;
 
             g = parent.g + 1;
-            h = Mathf.Abs(endTile.x - tile.x) + Mathf.Abs(endTile.y - tile.y);
+            h = Mathf.Abs(endTile.x - tile.x) + Mathf.Abs(endTile.y - tile.y); // Manhattan
             f = g + h;
         }
 
+        /// <summary>
+        /// Setter for assigning a new parent node.
+        /// The g value of the new parent is inherited.
+        /// </summary>
+        /// <param name="newParent"></param>
         public void SetNewParent(Node newParent)
         {
             parent = newParent;
@@ -45,12 +63,16 @@ public class Pathfinder : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Calculates a path from the enemy agent's current tile to the target tile.
+    /// </summary>
+    /// <param name="targetTile">The destination tile.</param>
+    /// <returns>A path to the destination tile.</returns>
     public List<Tile> CalculatePath(Tile targetTile)
     {
+        // If the target tile in a wall, try to set the target tile to one of its neighbours.
         if (targetTile.tileType == Tile.TileType.WALL)
         {
-            //Debug.LogWarning("Tried to find a path that ends at a wall.");
-
             foreach (Tile tile in targetTile.neighbours.Values)
             {
                 if (tile.tileType != Tile.TileType.WALL)
@@ -58,7 +80,13 @@ public class Pathfinder : MonoBehaviour
                     targetTile = tile;
                 }
             }
-            //return null;
+
+            // Couldn't find a neighbour that wasnt a wall, so abort.
+            if (targetTile.tileType == Tile.TileType.WALL)
+            {
+                Debug.Log("Invalid target tile.");
+                return null;
+            }
         }
 
         // Initialize list and queue.
@@ -70,7 +98,7 @@ public class Pathfinder : MonoBehaviour
         Tile startTile = Level.TileAt(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(Math.Abs(transform.position.z)));
         Node startNode = new Node(startTile, startTile, targetTile);
         nodeQueue.Enqueue(startNode, (int)startNode.f);
-        closedNodes.Add(startNode);
+        openNodes.Add(startNode);
 
         // Keep searching until the queue is empty.
         while (nodeQueue.Count > 0)
@@ -108,7 +136,7 @@ public class Pathfinder : MonoBehaviour
                 else
                 {
                     // Put neighbour node into the queue.
-                    Node neighbourNode = new Node(neighbour, currentNode, startTile, targetTile);
+                    Node neighbourNode = new Node(neighbour, currentNode, targetTile);
                     nodeQueue.Enqueue(neighbourNode, (int)neighbourNode.f);
                     openNodes.Add(neighbourNode);
                 }
@@ -122,13 +150,11 @@ public class Pathfinder : MonoBehaviour
                 while (currentNode != null && currentNode != startNode)
                 {
                     pathTiles.Add(currentNode.tile);
-                    //currentNode.tile.GetComponent<Renderer>().material.color = Color.red;
                     currentNode = currentNode.parent;
                 }
 
                 // Reverse the list of tiles since we want a path from start to target.
                 pathTiles.Reverse();
-                //targetTile.GetComponent<Renderer>().material.color = Color.blue;
                 return pathTiles;
             }
 
@@ -136,7 +162,7 @@ public class Pathfinder : MonoBehaviour
             closedNodes.Add(currentNode);
         }
 
-        Debug.Log("Couldn't find a path for some reason.");
+        Debug.Log("Couldn't find a path.");
         return null;
     }
 }

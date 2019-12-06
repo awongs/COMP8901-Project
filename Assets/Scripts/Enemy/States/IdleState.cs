@@ -1,8 +1,9 @@
-﻿using System;
-using UnityEngine;
-
-public class IdleState : FiniteState
+﻿public class IdleState : FiniteState
 {
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="enemy">The enemy that owns this state.</param>
     public IdleState(Enemy enemy) : base(enemy) { }
 
     public override void OnStateEnter()

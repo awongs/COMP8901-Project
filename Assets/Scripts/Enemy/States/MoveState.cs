@@ -14,6 +14,11 @@ public class MoveState : FiniteState
     // Did the enemy complete the path?
     public bool completedPath;
 
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="enemy">The enemy that owns this state.</param>
+    /// <param name="path">The path to follow.</param>
     public MoveState(Enemy enemy, List<Tile> path) : base(enemy)
     {
         currentPath = path;
@@ -38,7 +43,7 @@ public class MoveState : FiniteState
         }
 
         // Is this enemy character done following the path?
-        if (currentPathIndex != currentPath.Count)
+        if (currentPathIndex < currentPath.Count)
         {
             // Calculate direction of movement.
             Vector3 destination = currentPath[currentPathIndex].transform.position;

@@ -1,4 +1,4 @@
-﻿using UnityEditor;
+﻿
 using UnityEngine;
 
 public class TiledMapLoader : MonoBehaviour
@@ -13,8 +13,8 @@ public class TiledMapLoader : MonoBehaviour
     private const int TILE_WIDTH = 32;
     private const int TILE_HEIGHT = 32;
 
-    // Path to the level .json file.
-    public string levelPath;
+    // The level .json file as a text asset.
+    public TextAsset levelFile;
 
     // Floor tile prefab.
     public GameObject floorTile;
@@ -25,11 +25,19 @@ public class TiledMapLoader : MonoBehaviour
     // Enemy prefab.
     public GameObject enemy;
 
+    private void Update()
+    {
+        // Escape exits the game.
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+    }
+
     public void LoadLevel()
     {
         // Parse .json file into level information.
-        string levelJson = System.IO.File.ReadAllText(levelPath);
-        TiledMap level = JsonUtility.FromJson<TiledMap>(levelJson);
+        TiledMap level = JsonUtility.FromJson<TiledMap>(levelFile.text);
        
         // Fill with the level tiles.
         foreach (Layer layer in level.layers)
@@ -107,22 +115,4 @@ public class TiledMapLoader : MonoBehaviour
     }
 }
 
-[CustomEditor(typeof(TiledMapLoader))]
-public class TiledMapEditor : Editor
-{
-    public override void OnInspectorGUI()
-    {
-        DrawDefaultInspector();
 
-        TiledMapLoader tiledMapLoader = (TiledMapLoader)target;
-        if (GUILayout.Button("Load Level"))
-        {
-            tiledMapLoader.LoadLevel();
-        }
-
-        if (GUILayout.Button("Clear Level"))
-        {
-            tiledMapLoader.ClearLevel();
-        }
-    }
-}
